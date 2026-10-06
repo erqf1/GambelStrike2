@@ -2,11 +2,26 @@
 
 Free-for-All Ego-Shooter im Browser (Three.js). Vor jeder Runde drehst du **6 Glücksräder** – HP, Speed, Damage, Main Weapon, Secondary, Knife – und weißt nie, mit welchem Loadout du startest.
 
-## Starten
+## Download & Starten
 
-- **`index.html` doppelklicken** (Chrome, Edge oder Firefox). Keine Installation nötig.
-- Beim ersten Laden wird eine **Internetverbindung** gebraucht (Three.js und Schriften kommen von einem CDN).
-- Spielstand, Tokens, Skins, Einstellungen und Statistiken werden lokal im Browser gespeichert.
+Fertige Builds gibt es unter **[Releases](https://github.com/erqf1/GambelStrike2/releases/latest)**:
+
+- **`GambelStrike2-…-Windows.exe`** – doppelklicken, das Spiel öffnet sich in einem eigenen Fenster (nutzt Edge oder Chrome im App-Modus, sonst den Standardbrowser). Windows SmartScreen kann bei unsignierten Programmen warnen: *Weitere Informationen → Trotzdem ausführen*.
+- **`GambelStrike2-…-offline.html`** – eine einzige Datei für jedes Betriebssystem, läuft komplett **offline** im Browser.
+
+Aus dem Quellcode: `index.html` doppelklicken (Chrome, Edge oder Firefox). Diese Variante lädt Three.js und die Schriften beim Start aus dem Internet.
+
+Spielstand, Tokens, Skins, Einstellungen und Statistiken werden lokal gespeichert.
+
+## Selbst bauen
+
+```
+cd tools
+npm install
+npm run build
+```
+
+Ergebnis in `dist/`: die Offline-Einzeldatei und unter Windows zusätzlich die EXE (kompiliert mit dem in Windows enthaltenen C#-Compiler, keine weitere Installation nötig).
 
 ## Steuerung (frei belegbar in Settings → Controls)
 

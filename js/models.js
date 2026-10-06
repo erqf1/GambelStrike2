@@ -14,7 +14,9 @@
       this.metalLight = std({ color: 0x6d727a, metalness: 0.9, roughness: 0.3 });
       this.poly = std({ color: 0x1c1e22, metalness: 0.05, roughness: 0.62 });
       this.rubber = std({ color: 0x141517, metalness: 0.0, roughness: 0.85 });
-      this.glass = std({ color: 0x0c1a24, metalness: 0.6, roughness: 0.05, transparent: true, opacity: 0.55, emissive: 0x0a2030, emissiveIntensity: 0.6 });
+      // optic glass must stay see-through: aiming happens through it
+      this.glass = std({ color: 0x9fc4e0, metalness: 0.2, roughness: 0.05, transparent: true, opacity: 0.05, depthWrite: false, side: THREE.DoubleSide });
+      this.metalDS = std({ color: 0x2b2e34, metalness: 0.85, roughness: 0.38, side: THREE.DoubleSide });
       this.dot = new THREE.MeshBasicMaterial({ color: new THREE.Color(6, 0.3, 0.2) });
       this.dotGreen = new THREE.MeshBasicMaterial({ color: new THREE.Color(0.4, 5, 1.2) });
       this.brass = std({ color: 0xc9a042, metalness: 1, roughness: 0.3 });
@@ -183,9 +185,14 @@
   };
   const REDDOT = (b, y, z, green) => {
     b.box('metal', 0.03, 0.014, 0.05, 0, y - 0.017, z);
-    b.cyl('metal', 0.02, 0.055, 0, y + 0.004, z, 'z', 16);
-    b.cyl('glass', 0.017, 0.004, 0, y + 0.004, z - 0.026, 'z', 16);
-    const dot = b.add(new THREE.SphereGeometry(0.0012, 6, 6), green ? M.dotGreen : M.dot, 0, y + 0.004, z - 0.02);
+    // open-ended housing: the sight line runs straight through the tube
+    const tube = new THREE.CylinderGeometry(0.02, 0.02, 0.055, 24, 1, true);
+    tube.rotateX(Math.PI / 2);
+    b.add(tube, M.metalDS, 0, y + 0.004, z);
+    b.add(new THREE.RingGeometry(0.0175, 0.0215, 24), M.metalDS, 0, y + 0.004, z - 0.0275);
+    b.add(new THREE.RingGeometry(0.0175, 0.0215, 24), M.metalDS, 0, y + 0.004, z + 0.0275);
+    b.add(new THREE.CircleGeometry(0.0176, 24), M.glass, 0, y + 0.004, z - 0.026);
+    const dot = b.add(new THREE.SphereGeometry(0.0019, 8, 8), green ? M.dotGreen : M.dot, 0, y + 0.004, z - 0.02);
     dot.renderOrder = 5;
     b.sock('sight', 0, y + 0.004, z + 0.02);
   };
@@ -200,10 +207,14 @@
     b.add(new THREE.CircleGeometry(0.0008, 8), M.dot, 0, y + 0.006, z - 0.0185);
     b.sock('sight', 0, y + 0.006, z + 0.03);
   };
+  // notch rear sight (two posts) + front post; the sight line runs over the post tops
+  // at y = yFront + 0.006 (relative to `parent`)
   const IRONS = (b, yRear, zRear, yFront, zFront, parent) => {
-    b.box('metal', 0.022, 0.012, 0.008, 0, yRear, zRear, 0, 0, 0, parent);
-    b.box('metal', 0.006, 0.014, 0.006, 0, yFront, zFront, 0, 0, 0, parent);
-    b.add(new THREE.SphereGeometry(0.0016, 6, 6), M.dotGreen, 0, yFront + 0.007, zFront, 0, 0, 0, parent);
+    b.box('metal', 0.007, 0.012, 0.008, -0.0075, yRear, zRear, 0, 0, 0, parent);
+    b.box('metal', 0.007, 0.012, 0.008, 0.0075, yRear, zRear, 0, 0, 0, parent);
+    b.box('metal', 0.022, 0.004, 0.008, 0, yRear - 0.008, zRear, 0, 0, 0, parent);
+    b.box('metal', 0.004, 0.012, 0.006, 0, yFront, zFront, 0, 0, 0, parent);
+    b.add(new THREE.SphereGeometry(0.0016, 6, 6), M.dotGreen, 0, yFront + 0.006, zFront, 0, 0, 0, parent);
   };
 
   const GUNS = {
@@ -296,7 +307,11 @@
       b.box('paint', 0.03, 0.03, 0.12, 0, 0.09, 0.15);
       // 1.5x box optic
       b.box('metal', 0.03, 0.016, 0.08, 0, 0.095, -0.1);
-      b.box('metal', 0.048, 0.044, 0.12, 0, 0.125, -0.1);
+      // hollow optic housing (four walls) so the view stays clear
+      b.box('metal', 0.048, 0.006, 0.12, 0, 0.144, -0.1);
+      b.box('metal', 0.048, 0.006, 0.12, 0, 0.106, -0.1);
+      b.box('metal', 0.006, 0.044, 0.12, -0.021, 0.125, -0.1);
+      b.box('metal', 0.006, 0.044, 0.12, 0.021, 0.125, -0.1);
       b.add(new THREE.PlaneGeometry(0.038, 0.032), M.glass, 0, 0.126, -0.161);
       b.add(new THREE.PlaneGeometry(0.038, 0.032), M.glass, 0, 0.126, -0.039, 0, Math.PI, 0);
       const ch = b.add(new THREE.PlaneGeometry(0.0007, 0.012), M.dot, 0, 0.122, -0.155); ch.renderOrder = 5;
@@ -353,13 +368,13 @@
       b.box('metal', 0.028, 0.04, 0.04, 0, -0.005, 0, 0, 0, 0, mag);
       const bolt = b.group('bolt', 0, 0.09, 0.02);
       b.box('metal', 0.02, 0.01, 0.02, 0, 0, 0, 0, 0, 0, bolt);
-      b.sock('sight', 0, 0.1, 0.06);
+      b.sock('sight', 0, 0.1005, 0.06);
       b.sock('muzzle', 0, 0.05, -0.35);
       b.sock('eject', 0.03, 0.05, -0.05);
       b.sock('guard', 0, -0.04, -0.2, -Math.PI / 2, 0, 0);
       b.sock('magHand', 0, -0.13, -0.1);
       b.sock('boltHand', 0, 0.1, 0.02);
-      b.userData = { recoilZ: 0.022, vgrip: true };
+      b.userData = { recoilZ: 0.022, vgrip: true, irons: true };
     },
     shotgun(b) {
       b.box('paint', 0.055, 0.075, 0.22, 0, 0.04, -0.08);
@@ -368,18 +383,21 @@
       b.cyl('metal', 0.013, 0.42, 0, 0.028, -0.4);
       b.box('paint', 0.045, 0.08, 0.24, 0, 0.018, 0.17, -0.12);
       b.box('rubber', 0.048, 0.1, 0.024, 0, 0.004, 0.29, -0.12);
-      b.add(new THREE.SphereGeometry(0.004, 8, 8), M.brass, 0, 0.08, -0.74);
-      b.box('metal', 0.022, 0.012, 0.01, 0, 0.085, -0.02);
+      b.box('metal', 0.004, 0.024, 0.008, 0, 0.087, -0.735); // raised front post
+      b.add(new THREE.SphereGeometry(0.0022, 8, 8), M.dotGreen, 0, 0.099, -0.735);
+      b.box('metal', 0.006, 0.028, 0.012, -0.0075, 0.087, -0.02); // ghost-ring rear posts
+      b.box('metal', 0.006, 0.028, 0.012, 0.0075, 0.087, -0.02);
+      b.box('metal', 0.022, 0.012, 0.012, 0, 0.079, -0.02);
       const pump = b.group('pump', 0, 0.026, -0.36);
       b.box('poly', 0.058, 0.05, 0.16, 0, 0, 0, 0, 0, 0, pump);
       for (let i = 0; i < 6; i++) b.box('poly', 0.062, 0.054, 0.008, 0, 0, -0.06 + i * 0.024, 0, 0, 0, pump);
-      b.sock('sight', 0, 0.088, -0.02);
+      b.sock('sight', 0, 0.099, -0.02);
       b.sock('muzzle', 0, 0.062, -0.76);
       b.sock('eject', 0.03, 0.045, -0.08);
       b.sock('guard', 0, -0.008, -0.36);
       b.sock('magHand', 0, -0.03, -0.12);
       b.sock('boltHand', 0, -0.008, -0.27);
-      b.userData = { recoilZ: 0.07 };
+      b.userData = { recoilZ: 0.07, irons: true };
     },
     longbow(b) {
       b.box('paint', 0.05, 0.06, 0.28, 0, 0.04, -0.08);
@@ -428,7 +446,7 @@
       const mag = b.group('mag', 0, -0.05, 0.022);
       b.box('metal', 0.024, 0.1, 0.034, 0, 0.0, 0, -0.22, 0, 0, mag);
       b.box('poly', 0.03, 0.012, 0.046, 0, -0.052, 0.012, -0.22, 0, 0, mag);
-      b.sock('sight', 0, 0.071, 0.06);
+      b.sock('sight', 0, 0.0755, 0.06);
       b.sock('muzzle', 0, 0.05, -0.165);
       b.sock('eject', 0.02, 0.058, -0.04);
       b.sock('guard', -0.012, -0.045, 0.02, 0, 0, 0);
@@ -450,7 +468,7 @@
       const mag = b.group('mag', 0, -0.05, 0.022);
       b.box('metal', 0.024, 0.1, 0.034, 0, 0, 0, -0.2, 0, 0, mag);
       b.box('poly', 0.03, 0.012, 0.046, 0, -0.052, 0.012, -0.2, 0, 0, mag);
-      b.sock('sight', 0, 0.072, 0.06);
+      b.sock('sight', 0, 0.0765, 0.06);
       b.sock('muzzle', 0, 0.05, -0.175);
       b.sock('eject', 0.02, 0.058, -0.04);
       b.sock('guard', -0.012, -0.045, 0.02);
@@ -470,7 +488,7 @@
       const mag = b.group('mag', 0, -0.05, 0.022);
       b.box('metal', 0.024, 0.2, 0.034, 0, -0.05, 0, -0.22, 0, 0, mag);
       b.box('poly', 0.03, 0.012, 0.046, 0, -0.152, 0.034, -0.22, 0, 0, mag);
-      b.sock('sight', 0, 0.071, 0.06);
+      b.sock('sight', 0, 0.0755, 0.06);
       b.sock('muzzle', 0, 0.05, -0.215);
       b.sock('eject', 0.02, 0.058, -0.04);
       b.sock('guard', 0, -0.035, -0.12, -Math.PI / 2, 0, 0);
@@ -491,7 +509,7 @@
       const mag = b.group('mag', 0, -0.05, 0.022);
       b.box('metal', 0.026, 0.1, 0.036, 0, 0, 0, -0.2, 0, 0, mag);
       b.box('metal', 0.032, 0.012, 0.048, 0, -0.052, 0.012, -0.2, 0, 0, mag);
-      b.sock('sight', 0, 0.08, 0.06);
+      b.sock('sight', 0, 0.0845, 0.06);
       b.sock('muzzle', 0, 0.055, -0.2);
       b.sock('eject', 0.022, 0.06, -0.05);
       b.sock('guard', -0.012, -0.045, 0.02);
@@ -515,7 +533,7 @@
         b.cyl('brass', 0.005, 0.047, Math.cos(a) * 0.013, Math.sin(a) * 0.013, 0, 'z', 6, cylg);
       }
       b.group('mag', 0, -0.05, 0.02);
-      b.sock('sight', 0, 0.074, 0.05);
+      b.sock('sight', 0, 0.081, 0.05);
       b.sock('muzzle', 0, 0.05, -0.25);
       b.sock('eject', 0.02, 0.04, -0.04);
       b.sock('guard', -0.012, -0.045, 0.02);

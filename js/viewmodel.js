@@ -441,7 +441,7 @@
         const hipP = def.pistol ? [0.12, -0.14, -0.34] : def.scope ? [0.135, -0.16, -0.29] : [0.14, -0.165, -0.31];
         m.hip = new V3().fromArray(hipP);
         const sight = s.sight ? s.sight.position : new V3(0, 0.07, 0);
-        const eye = def.scope ? 0.16 : def.pistol ? 0.3 : 0.2;
+        const eye = def.scope ? 0.16 : def.pistol ? 0.34 : s.sight && !m.info.irons ? 0.32 : 0.28;
         m.ads = new V3(-sight.x, -sight.y, -eye - sight.z);
         // hand poses
         m.gripPose = { p: new V3(0, -0.047, 0.024), q: new THREE.Quaternion().setFromEuler(new THREE.Euler(def.pistol ? -0.22 : -0.28, 0, 0)) };
@@ -656,7 +656,7 @@
         tmpQ.copy(st.camQuat).invert();
         this.sun.position.copy(this.sunDirWorld).applyQuaternion(tmpQ);
       }
-      this.camera.fov = U.lerp(64, 54, this.adsW);
+      this.camera.fov = U.lerp(64, 60, this.adsW);
       this.camera.updateProjectionMatrix();
     }
 

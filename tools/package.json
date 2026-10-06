@@ -1,0 +1,14 @@
+{
+  "name": "gambelstrike2-build",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Builds the offline single-file release of GambelStrike 2",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "devDependencies": {
+    "three": "0.147.0",
+    "@fontsource/chakra-petch": "^5.0.0",
+    "@fontsource/inter": "^5.0.0"
+  }
+}
