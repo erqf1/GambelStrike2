@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GambelStrike 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-screen="boot">
+<canvas id="gl"></canvas>
+<div id="dmg-layer"></div>
+
+<!-- ============================== HUD ============================== -->
+<div id="hud" class="hidden">
+  <div id="hurt-vignette"></div>
+  <div id="scope-overlay"><div class="sc-ring"></div><div class="sc-h"></div><div class="sc-v"></div></div>
+  <div id="hud-top">
+    <div class="hud-chip kd"><b id="hud-k">0</b><span>K</span><i></i><b id="hud-d">0</b><span>D</span></div>
+    <div id="hud-timer">4:00</div>
+    <div class="hud-chip" id="hud-place">#1 / 10</div>
+  </div>
+  <div id="hud-mini"></div>
+  <div id="killfeed"></div>
+  <div id="crosshair"><i class="t"></i><i class="b"></i><i class="l"></i><i class="r"></i><i class="dot"></i></div>
+  <div id="hitmarker"><i></i><i></i><i></i><i></i></div>
+  <div id="reload-ring"></div>
+  <div id="target-name"></div>
+  <div id="dmg-dirs"></div>
+  <div id="hud-bl">
+    <div class="hp-row"><span class="hp-ic">✚</span><b id="hp-val">100</b><span id="hp-max">/ 100</span></div>
+    <div class="hp-bar"><i id="hp-bar-fill"></i></div>
+    <div id="hud-mods"></div>
+  </div>
+  <div id="hud-br">
+    <div id="w-slots"></div>
+    <div class="w-row"><div class="w-names"><div id="w-name">AR-4</div><div id="w-skin">Factory</div></div><div class="w-ammo"><b id="w-ammo">30</b><span id="w-reserve">/ 120</span></div></div>
+  </div>
+  <div id="hud-center"></div>
+  <div id="hud-streak"></div>
+  <div id="hud-toast"></div>
+  <div id="spawn-prot">SPAWN PROTECTION</div>
+  <div id="death-screen"></div>
+  <div id="scoreboard"></div>
+  <div id="fps"></div>
+</div>
+
+<!-- ============================== SCREENS ============================== -->
+<div id="ui">
+  <section class="screen" id="scr-menu"></section>
+  <section class="screen panel" id="scr-play"></section>
+  <section class="screen panel" id="scr-shop"></section>
+  <section class="screen panel" id="scr-inv"></section>
+  <section class="screen panel" id="scr-settings"></section>
+  <section class="screen dark" id="scr-case"></section>
+  <section class="screen dark" id="scr-lobby"></section>
+  <section class="screen dark" id="scr-roulette"></section>
+  <section class="screen dark" id="scr-summary"></section>
+  <section class="screen dark" id="scr-vote"></section>
+  <section class="screen solid" id="scr-load"></section>
+  <section class="screen" id="scr-deploy"></section>
+  <section class="screen" id="scr-pause"></section>
+  <section class="screen dark" id="scr-results"></section>
+  <section class="screen dark" id="scr-rewards"></section>
+</div>
+
+<div id="boot">
+  <div class="boot-logo"><div class="logo-a">GAMBEL<span>STRIKE</span></div><div class="logo-b">2</div></div>
+  <div class="boot-bar"><i id="boot-bar"></i></div>
+  <div id="boot-status">Loading engine…</div>
+  <div class="boot-start">CLICK ANYWHERE TO START</div>
+  <div class="boot-foot">Best with mouse &amp; keyboard · Chrome / Edge / Firefox</div>
+</div>
+<div id="modal"></div>
+<div id="unlock-anim"></div>
+<div id="toasts"></div>
+
+<!-- ============================== ENGINE ============================== -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/shaders/CopyShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/shaders/FXAAShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/MaskPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+
+<script src="js/util.js"></script>
+<script src="js/data.js"></script>
+<script src="js/save.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/textures.js"></script>
+<script src="js/models.js"></script>
+<script src="js/anim.js"></script>
+<script src="js/viewmodel.js"></script>
+<script src="js/world.js"></script>
+<script src="js/maps.js"></script>
+<script src="js/effects.js"></script>
+<script src="js/input.js"></script>
+<script src="js/combat.js"></script>
+<script src="js/player.js"></script>
+<script src="js/bots.js"></script>
+<script src="js/match.js"></script>
+<script src="js/studio.js"></script>
+<script src="js/roulette.js"></script>
+<script src="js/cases.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/flow.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
